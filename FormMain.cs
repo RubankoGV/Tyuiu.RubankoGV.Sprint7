@@ -184,46 +184,50 @@ namespace Tyuiu.RubankoGV.Sprint7.V8
                 MessageBox.Show("Данный ряд скрыт", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        //Сохранение файла(без помеченных строк)
         private void buttonSave_RGV_Click(object sender, EventArgs e)
         {
+            //Сохранение файла(без помеченных строк)
             this.saveFileDialogInfo_RGV.FileName = "OutPutAuto.csv";
-            this.saveFileDialogInfo_RGV.InitialDirectory = @"C:\DataSprint7";
+    this.saveFileDialogInfo_RGV.InitialDirectory = @"C:\DataSprint7";
+    this.saveFileDialogInfo_RGV.Filter = "CSV Files (*.csv)|*.csv";
+    this.saveFileDialogInfo_RGV.Title = "Save CSV File";
 
-            string path = @$"C:\DataSprint7\{saveFileDialogInfo_RGV.FileName}";
-            if (File.Exists(path)) { File.Delete(path); }
+    // Отображение диалогового окна и проверка, выбрал ли пользователь файл
+    if (this.saveFileDialogInfo_RGV.ShowDialog() == DialogResult.OK)
+    {
+            // Получение пути к выбранному файлу
+            string path = this.saveFileDialogInfo_RGV.FileName;
 
-            int row = this.dataGridViewChanged_RGV.RowCount;
-            int column = this.dataGridViewChanged_RGV.ColumnCount;
-            string str = "";
-            if (this.saveFileDialogInfo_RGV.ShowDialog() == DialogResult.OK)
+            // Удаление файла, если он существует
+            if (File.Exists(path))
             {
-                for (int i = 0; i < row; i++)
-                {
-                    for (int j = 0; j < column; j++)
-                    {
-                        if (this.dataGridViewChanged_RGV.Rows[i].Cells[j].Style.BackColor == Color.OrangeRed) break;
-
-                        if (j == column - 1)
-                        {
-                            str += this.dataGridViewChanged_RGV.Rows[i].Cells[j].Value.ToString();
-                        }
-                        else
-                        {
-                            str += this.dataGridViewChanged_RGV.Rows[i].Cells[j].Value.ToString() + ";";
-                        }
-                    }
-                    if (i == row - 1)
-                    {
-                        File.AppendAllText(path, str);
-                    }
-                    else
-                    {
-                        File.AppendAllText(path, str + Environment.NewLine);
-                    }
-                    str = "";
-                }
+                File.Delete(path);
             }
+
+            // Получение данных из DataGridView
+            int rowCount = this.dataGridViewChanged_RGV.RowCount;
+            int columnCount = this.dataGridViewChanged_RGV.ColumnCount;
+            string str = "";
+
+            // Создание строки CSV
+            for (int i = 0; i < rowCount - 1; i++) // -1, чтобы исключить пустую строку в конце
+            {
+                for (int j = 0; j < columnCount; j++)
+                {
+                    str += this.dataGridViewChanged_RGV.Rows[i].Cells[j].Value.ToString();
+                    if (j < columnCount - 1)
+                    {
+                        str += ",";
+                    }
+                }
+                str += "\n";
+            }
+
+            // Сохранение данных в файл
+            File.WriteAllText(path, str);
+
+            MessageBox.Show("Файл сохранен успешно!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
         }
 
         private void FormMain_Load(object sender, EventArgs e)
